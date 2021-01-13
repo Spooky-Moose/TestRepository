@@ -1,0 +1,93 @@
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+const int switchPin = 6;
+int switchState = 0;
+int prevSwitchState = 0;
+int reply;
+int prevReply;
+int prizeNumber; //Number required to win
+int numberRoll; //Number generated on each roll
+
+void setup() {
+  // put your setup code here, to run once:
+  randomSeed(analogRead(0));// generates new seed so prizeNumber isn't just the same number over and over again
+  lcd.begin(16, 2);
+  pinMode(switchPin, INPUT);
+  prizeNumber = random(1, 10);// Win Condition number generated
+  //randomSeed(prizeNumber);
+  lcd.print("Test your luck");
+  lcd.setCursor(0,1);
+  lcd.print("Shake for ");
+  lcd.print(prizeNumber);
+  Serial.begin(9600);
+  
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  switchState = digitalRead(switchPin);
+
+  if (switchState != prevSwitchState){
+    if(switchState == LOW){
+      //reply = random(8);
+      randomHat(); //check for duplicate replies
+      numberRoll = random(1,10); //random number roll
+      
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Number Rolled: ");
+      lcd.print(numberRoll);
+      lcd.setCursor(0, 1);
+      if (prizeNumber == numberRoll)//Win Condition
+      {
+        lcd.print("Win!");
+      }
+      else //Lose Condition
+      {
+        
+        switch(reply){
+          case 0:
+          lcd.print("No Way");
+          break;
+          case 1:
+          lcd.print("Miss");
+          break;
+          case 2:
+          lcd.print("Sorry");
+          break;
+          case 3:
+          lcd.print("Just give up");
+          break;
+          case 4:
+          lcd.print("Nope");
+          break;
+          case 5:
+          lcd.print("Not it");
+          break;
+          case 6:
+          lcd.print("Missed it");
+          break;
+          case 7:
+          lcd.print("Hah you lose");
+          break;
+        }
+      }
+      Serial.print(reply);
+      delay(100);
+    }
+  }
+  prevSwitchState = switchState;
+
+}
+
+void randomHat(){
+  prevReply = reply;
+  reply = random(8);
+
+  while (reply == prevReply){
+    reply = random(8);
+  }
+}
